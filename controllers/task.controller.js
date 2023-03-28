@@ -1,5 +1,15 @@
 const { Task } = require('../models');
 
+module.exports.getAllTasks = async (req, res, next) => {
+  try {
+    const { paginate = {} } = req;
+    const tasks = await Task.findAll({ ...paginate });
+    res.status(200).send({ data: tasks });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // module.exports.createTask = async (req, res, next) => {
 //   try {
 //     const {params:{idUser}, body} = req;
