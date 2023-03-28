@@ -4,8 +4,15 @@ const { checkUser } = require('../middlewares/user.mw');
 const { checkTask } = require('../middlewares/task.mw');
 const taskRouter = Router();
 
-taskRouter.post('/',  TaskController.createTask);
-taskRouter.get('/',  TaskController.getUserTasks);
-taskRouter.delete('/:idTask', checkUser, checkTask, TaskController.deleteUserTask);
+// taskRouter.get('/', TaskController.getAllTasks);
+
+taskRouter.post('/users/:idUser', checkUser, TaskController.createTask);
+taskRouter.get('/users/:idUser', checkUser, TaskController.getUserTasks);
+taskRouter.delete(
+  '/:idTask/users/:idUser',
+  checkUser,
+  checkTask,
+  TaskController.deleteUserTask
+);
 
 module.exports = taskRouter;
