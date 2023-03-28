@@ -1,5 +1,5 @@
 const { User } = require('../models');
-const { Op } = require("sequelize");
+const { Op } = require('sequelize');
 
 module.exports.createUser = async (req, res, next) => {
   try {
@@ -14,8 +14,8 @@ module.exports.createUser = async (req, res, next) => {
 module.exports.getAllUsers = async (req, res, next) => {
   try {
     //req -> query -> fname
-    const users = await User.findAll({ 
-      attributes: { exclude: ['password'] } ,
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] },
       //attributes: ['id','email',['first_name', 'name']]
       // where: {
       //   // firstName: 'Brad',
@@ -35,16 +35,19 @@ module.exports.getAllUsers = async (req, res, next) => {
 
 module.exports.updateUser = async (req, res, next) => {
   try {
-    const {body, params:{idUser}} = req;
+    const {
+      body,
+      params: { idUser },
+    } = req;
     const [rowsCount, [updatedUser]] = await User.update(body, {
-      where:{
-        id:{
-          [Op.eq]:idUser
-        }
+      where: {
+        id: {
+          [Op.eq]: idUser,
+        },
       },
-      returning: true
+      returning: true,
       //returning: ['email', 'last_name']
-    })
+    });
     updatedUser.password = undefined; //optimal
 
     // not optimal
@@ -60,12 +63,12 @@ module.exports.updateUser = async (req, res, next) => {
 
 module.exports.updateUserInstance = async (req, res, next) => {
   try {
-    const {body, params:{idUser}} = req;
-    const userInstance = await User.findByPk(idUser);
+    const { body, userInstance } = req;
+    // const userInstance = await User.findByPk(idUser);
 
-    const  userUpdated = await userInstance.update(body, {
-      returning: true
-    })
+    const userUpdated = await userInstance.update(body, {
+      returning: true,
+    });
     userUpdated.password = undefined;
     res.status(202).send({ data: userUpdated });
   } catch (error) {
@@ -75,12 +78,14 @@ module.exports.updateUserInstance = async (req, res, next) => {
 
 module.exports.deleteUser = async (req, res, next) => {
   try {
-    const {params: {idUser}} = req;
+    const {
+      params: { idUser },
+    } = req;
     const userInstance = await User.findByPk(idUser);
 
     // const deletedUser = await User.destroy({
     //   where: {id: idUser}
-    // })    
+    // })
     await userInstance.destroy();
 
     userInstance.password = undefined;
@@ -89,8 +94,6 @@ module.exports.deleteUser = async (req, res, next) => {
     next(error);
   }
 };
-
-
 
 // module.exports.createUser = async (req, res, next) => {
 //   try {
