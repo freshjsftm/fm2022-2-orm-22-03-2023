@@ -1,5 +1,5 @@
 const express = require('express');
-const { ValidationError } = require('sequelize');
+const { ValidationError, HostNotFoundError } = require('sequelize');
 const router = require('./routes');
 const app = express();
 
@@ -17,8 +17,9 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(500).send({
-    errors: [{ title: err.message }],
+  const status = err.status || 500;
+  res.status(status).send({
+    errors: [{ title: err.message || 'Server error!' }],
   });
 });
 

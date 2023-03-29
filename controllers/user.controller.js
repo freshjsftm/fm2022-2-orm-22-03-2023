@@ -1,10 +1,35 @@
-const { User } = require('../models');
+const createError = require('http-errors');
 const { Op } = require('sequelize');
+const { User } = require('../models');
+
+module.exports.getOneUserByPk = async (req, res, next) => {
+  try {
+    const {
+      params: { idUser },
+    } = req;
+    const user = await User.findByPk(idUser, {
+      attributes:{
+        exclude: ['password']
+      }
+    });
+    if (!user) {
+      // throw new Error('404. user not found');
+      const error = createError(404, 'User not found');
+      return next(error);
+    }
+    res.status(200).send({ data: user });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports.createUser = async (req, res, next) => {
   try {
     const { body } = req;
     const createdUser = await User.create(body);
+    if (!createdUser) {
+      return next(createError(400, 'Check your data'));
+    }
     res.status(201).send({ data: createdUser });
   } catch (error) {
     next(error);
@@ -13,8 +38,10 @@ module.exports.createUser = async (req, res, next) => {
 
 module.exports.getAllUsers = async (req, res, next) => {
   try {
+    const { paginate = {} } = req;
     //req -> query -> fname
     const users = await User.findAll({
+      ...paginate,
       attributes: { exclude: ['password'] },
       //attributes: ['id','email',['first_name', 'name']]
       // where: {
@@ -27,6 +54,9 @@ module.exports.getAllUsers = async (req, res, next) => {
       //   // }
       // }
     });
+    if (!users) {
+      return next(createError(404, 'Users not found'));
+    }
     res.status(200).send({ data: users });
   } catch (error) {
     next(error);
