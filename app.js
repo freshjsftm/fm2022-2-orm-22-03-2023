@@ -1,8 +1,8 @@
 const express = require('express');
-const { ValidationError, HostNotFoundError } = require('sequelize');
+const { ValidationError } = require('sequelize');
 const router = require('./routes');
 const app = express();
-
+app.use(express.static('public'));
 app.use(express.json()); //Content-Type: application/json
 //http://localhost:3000/api
 app.use('/api', router);

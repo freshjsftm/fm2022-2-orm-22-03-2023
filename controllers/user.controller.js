@@ -1,6 +1,9 @@
 const createError = require('http-errors');
 const { Op } = require('sequelize');
+const _ = require('lodash');
 const { User } = require('../models');
+
+const checkBody = (body)=>_.pick(body, ['firstName', 'lastName', 'email', 'password', 'birthday', 'isMale']);
 
 module.exports.getOneUserByPk = async (req, res, next) => {
   try {
@@ -8,9 +11,9 @@ module.exports.getOneUserByPk = async (req, res, next) => {
       params: { idUser },
     } = req;
     const user = await User.findByPk(idUser, {
-      attributes:{
-        exclude: ['password']
-      }
+      attributes: {
+        exclude: ['password'],
+      },
     });
     if (!user) {
       // throw new Error('404. user not found');
@@ -26,7 +29,8 @@ module.exports.getOneUserByPk = async (req, res, next) => {
 module.exports.createUser = async (req, res, next) => {
   try {
     const { body } = req;
-    const createdUser = await User.create(body);
+    const values = checkBody(body);
+    const createdUser = await User.create(values);
     if (!createdUser) {
       return next(createError(400, 'Check your data'));
     }
@@ -69,7 +73,8 @@ module.exports.updateUser = async (req, res, next) => {
       body,
       params: { idUser },
     } = req;
-    const [rowsCount, [updatedUser]] = await User.update(body, {
+    const values = checkBody(body);
+    const [rowsCount, [updatedUser]] = await User.update(values, {
       where: {
         id: {
           [Op.eq]: idUser,
@@ -99,6 +104,7 @@ module.exports.updateUserInstance = async (req, res, next) => {
     const userUpdated = await userInstance.update(body, {
       returning: true,
     });
+
     userUpdated.password = undefined;
     res.status(202).send({ data: userUpdated });
   } catch (error) {
