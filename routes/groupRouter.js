@@ -20,13 +20,9 @@ const upload = multer({ storage })
 
 const groupRouter = Router();
 groupRouter.post('/', GroupController.createUserGroup);
-
-//groupRouter.patch('/:idGroup/users/:idUser', GroupController.addUserGroup);
-
-//PATCH http://localhost:3000/api/groups/3/image HTTP/1.1
 groupRouter.patch('/:idGroup/image', upload.single('image'),  GroupController.addImageGroup);
-
-//GET http://localhost:3000/api/groups/users/23 HTTP/1.1
 groupRouter.get('/users/:idUser', GroupController.getUserGroups);
+
+groupRouter.post('/:idGroup', GroupController.addUserToGroup)
 
 module.exports = groupRouter;

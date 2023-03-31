@@ -5,11 +5,7 @@ const { Group, User } = require('../models');
 module.exports.createUserGroup = async (req, res, next) => {
   try {
     const { body } = req;
-    const values = _.pick(body, [
-      'name',
-      'description',
-      'isAdult',
-    ]);
+    const values = _.pick(body, ['name', 'description', 'isAdult']);
     const group = await Group.create(values);
     if (!group) {
       return next(createError(400, 'Bad request'));
@@ -62,6 +58,43 @@ module.exports.addImageGroup = async (req, res, next) => {
     );
 
     res.status(200).send({ data: updatedGroup });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.addUserToGroup = async (req, res, next) => {
+  try {
+    //get id user & group
+    const {params:{idGroup}, body:{userId}} = req;
+    //find by pk group
+    const group = await Group.findByPk(idGroup);
+    //handle errors
+    if(!group) {
+      return next(createError(404, 'group not found'))
+    }
+    //find by bk user
+    const user = await User.findByPk(userId);
+    //handle errors
+    if(!user) {
+      return next(createError(404, 'user not found'))
+    }
+    //add user to group
+    await group.addUser(user);
+    //send group with users
+    //const groupWithUsers = await group.getUsers();
+
+    const groupWithUsers = await Group.findByPk(idGroup, {
+      include: {
+        model: User,
+        attributes: ['email'],
+        through: {
+          attributes: [],
+        },
+      },
+    });
+
+    res.status(200).send({data:groupWithUsers})
   } catch (error) {
     next(error);
   }
